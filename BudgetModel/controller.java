@@ -5,9 +5,10 @@
 package BudgetModel;
 
 /**
- *
+ * Model package for data classes
  * @author yakendrabamthakuri
  */
-public class controller {
-    
+class ModelManager {
+    // This class can be used for managing model operations
+    // Currently serves as a placeholder for the model package
 }
