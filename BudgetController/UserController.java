@@ -11,11 +11,16 @@ import java.util.List;
 public class UserController {
     private static UserController instance;
     private List users;
+    private User admin;
     
     private UserController() {
         users = new ArrayList();
-        users.add(new User("admin", "admin@budget.com", "admin123"));
+        // Create admin account (cannot be registered normally)
+        admin = new User("admin", "admin@budget.com", "admin123");
+        
+        // Add regular test users
         users.add(new User("user1", "user1@example.com", "password123"));
+        users.add(new User("user2", "user2@example.com", "password456"));
     }
     
     public static UserController getInstance() {
@@ -26,6 +31,12 @@ public class UserController {
     }
     
     public boolean authenticateUser(String email, String password) {
+        // Check admin first
+        if (admin.getEmail().equals(email) && admin.getPassword().equals(password)) {
+            return true;
+        }
+        
+        // Check regular users
         for (int i = 0; i < users.size(); i++) {
             User user = (User) users.get(i);
             if (user.getEmail().equals(email) && user.getPassword().equals(password)) {
@@ -35,7 +46,17 @@ public class UserController {
         return false;
     }
     
+    public boolean isAdmin(String email) {
+        return admin.getEmail().equals(email);
+    }
+    
     public boolean registerUser(String username, String email, String password) {
+        // Prevent admin email registration
+        if (admin.getEmail().equals(email)) {
+            return false;
+        }
+        
+        // Check if email already exists in regular users
         for (int i = 0; i < users.size(); i++) {
             User user = (User) users.get(i);
             if (user.getEmail().equals(email)) {
@@ -47,6 +68,13 @@ public class UserController {
     }
     
     public boolean resetPassword(String email, String newPassword) {
+        // Admin password reset
+        if (admin.getEmail().equals(email)) {
+            admin.setPassword(newPassword);
+            return true;
+        }
+        
+        // Regular user password reset
         for (int i = 0; i < users.size(); i++) {
             User user = (User) users.get(i);
             if (user.getEmail().equals(email)) {
@@ -58,6 +86,10 @@ public class UserController {
     }
     
     public User getUserByEmail(String email) {
+        if (admin.getEmail().equals(email)) {
+            return admin;
+        }
+        
         for (int i = 0; i < users.size(); i++) {
             User user = (User) users.get(i);
             if (user.getEmail().equals(email)) {
