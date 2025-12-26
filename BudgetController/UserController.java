@@ -125,4 +125,38 @@ public class UserController {
         }
         return null;
     }
+    
+    public List getAllUsers() {
+        return users;
+    }
+    
+    public boolean deleteUser(String email) {
+        for (int i = 0; i < users.size(); i++) {
+            User user = (User) users.get(i);
+            if (user.getEmail().equals(email)) {
+                users.remove(i);
+                saveUsers();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean updateUser(String oldEmail, String newUsername, String newEmail, String newPassword) {
+        for (int i = 0; i < users.size(); i++) {
+            User user = (User) users.get(i);
+            if (user.getEmail().equals(oldEmail)) {
+                user.setUsername(newUsername);
+                user.setEmail(newEmail);
+                user.setPassword(newPassword);
+                saveUsers();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public int getUserCount() {
+        return users.size();
+    }
 }

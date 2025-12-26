@@ -1,1 +1,2 @@
 akendra,akendra@gmail.com,12345678
+Bikram,bikram@gmail.com,Bikram@123

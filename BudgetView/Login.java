@@ -191,8 +191,16 @@ public class Login extends javax.swing.JFrame {
             
             UserController controller = UserController.getInstance();
             if (controller.authenticateUser(email, password)) {
-                JOptionPane.showMessageDialog(this, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                // Here you would typically open the main application window
+                if (controller.isAdmin(email)) {
+                    // Admin login - open admin dashboard
+                    JOptionPane.showMessageDialog(this, "Admin Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    this.setVisible(false);
+                    new BudgetView().setVisible(true);
+                } else {
+                    // Regular user login
+                    JOptionPane.showMessageDialog(this, "User Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    // Here you would open user dashboard when created
+                }
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid email or password!", "Login Failed", JOptionPane.ERROR_MESSAGE);
             }
