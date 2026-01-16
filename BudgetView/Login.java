@@ -5,10 +5,14 @@
 package BudgetView;
 
 import BudgetController.UserController;
+import BudgetController.TransactionController;
 import BudgetModel.User;
+import BudgetModel.Transaction;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  *
@@ -17,6 +21,8 @@ import java.util.List;
 public class Login extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Login.class.getName());
+    private String currentUserEmail = "";
+    private String currentUsername = "";
 
     /**
      * Creates new form Login
@@ -40,6 +46,55 @@ public class Login extends javax.swing.JFrame {
         }
         
         jLabel34.setText(String.valueOf(users.size()));
+    }
+    
+    private void loadUserTransactions() {
+        TransactionController controller = TransactionController.getInstance();
+        List transactions = controller.getUserTransactions(currentUserEmail);
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        
+        for (int i = 0; i < transactions.size(); i++) {
+            Transaction t = (Transaction) transactions.get(i);
+            model.addRow(new Object[]{t.getDate(), t.getCategory(), t.getAmount(), t.getType()});
+        }
+        
+        updateUserBudgetSummary();
+    }
+    
+    private void updateUserBudgetSummary() {
+        TransactionController controller = TransactionController.getInstance();
+        double income = controller.getTotalIncome(currentUserEmail);
+        double expense = controller.getTotalExpense(currentUserEmail);
+        double remaining = income - expense;
+        
+        jLabel26.setText(String.format("%.2f", income));
+        jLabel27.setText(String.format("%.2f", expense));
+        jLabel28.setText(String.format("%.2f", remaining));
+    }
+    
+    private void loadAllTransactions() {
+        TransactionController controller = TransactionController.getInstance();
+        List transactions = controller.getAllTransactions();
+        DefaultTableModel model = (DefaultTableModel) jTable6.getModel();
+        model.setRowCount(0);
+        
+        for (int i = 0; i < transactions.size(); i++) {
+            Transaction t = (Transaction) transactions.get(i);
+            model.addRow(new Object[]{i + 1, t.getUserEmail(), t.getDate(), t.getCategory() + " " + t.getAmount(), t.getType()});
+        }
+    }
+    
+    private void loadUsersToManageTable() {
+        UserController controller = UserController.getInstance();
+        List users = controller.getAllUsers();
+        DefaultTableModel model = (DefaultTableModel) jTable4.getModel();
+        model.setRowCount(0);
+        
+        for (int i = 0; i < users.size(); i++) {
+            User user = (User) users.get(i);
+            model.addRow(new Object[]{i + 1, user.getUsername(), user.getEmail(), "User", "Active"});
+        }
     }
 
     /**
@@ -685,10 +740,20 @@ public class Login extends javax.swing.JFrame {
         jButton2.setBackground(new java.awt.Color(51, 102, 255));
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("Add Income");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton12.setBackground(new java.awt.Color(51, 102, 255));
         jButton12.setForeground(new java.awt.Color(255, 255, 255));
         jButton12.setText("Add Expense");
+        jButton12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton12ActionPerformed(evt);
+            }
+        });
 
         jButton13.setBackground(new java.awt.Color(51, 102, 255));
         jButton13.setForeground(new java.awt.Color(255, 255, 255));
@@ -1197,10 +1262,20 @@ public class Login extends javax.swing.JFrame {
         jButton23.setBackground(new java.awt.Color(0, 102, 255));
         jButton23.setForeground(new java.awt.Color(255, 255, 255));
         jButton23.setText("SAVE");
+        jButton23.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton23ActionPerformed(evt);
+            }
+        });
 
         jButton24.setBackground(new java.awt.Color(102, 102, 102));
         jButton24.setForeground(new java.awt.Color(255, 255, 255));
         jButton24.setText("CANCEL");
+        jButton24.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton24ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
@@ -1329,18 +1404,38 @@ public class Login extends javax.swing.JFrame {
         jButton26.setBackground(new java.awt.Color(0, 102, 204));
         jButton26.setForeground(new java.awt.Color(255, 255, 255));
         jButton26.setText("Add User");
+        jButton26.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton26ActionPerformed(evt);
+            }
+        });
 
         jButton27.setBackground(new java.awt.Color(0, 102, 204));
         jButton27.setForeground(new java.awt.Color(255, 255, 255));
         jButton27.setText("Edit");
+        jButton27.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton27ActionPerformed(evt);
+            }
+        });
 
         jButton28.setBackground(new java.awt.Color(0, 102, 204));
         jButton28.setForeground(new java.awt.Color(255, 255, 255));
         jButton28.setText("Delete");
+        jButton28.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton28ActionPerformed(evt);
+            }
+        });
 
         jButton29.setBackground(new java.awt.Color(0, 102, 204));
         jButton29.setForeground(new java.awt.Color(255, 255, 255));
         jButton29.setText("Back");
+        jButton29.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton29ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout ManageUsersLayout = new javax.swing.GroupLayout(ManageUsers);
         ManageUsers.setLayout(ManageUsersLayout);
@@ -1912,6 +2007,11 @@ public class Login extends javax.swing.JFrame {
         jButton36.setBackground(new java.awt.Color(0, 102, 204));
         jButton36.setForeground(new java.awt.Color(255, 255, 255));
         jButton36.setText("Back");
+        jButton36.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton36ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel20Layout = new javax.swing.GroupLayout(jPanel20);
         jPanel20.setLayout(jPanel20Layout);
@@ -2027,6 +2127,10 @@ public class Login extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
                 
+                currentUserEmail = email;
+                User user = controller.getUserByEmail(email);
+                currentUsername = user.getUsername();
+                
                 // Check if admin or regular user and navigate accordingly
                 if (controller.isAdmin(email)) {
                     // Navigate to admin dashboard (AdminPage)
@@ -2034,6 +2138,8 @@ public class Login extends javax.swing.JFrame {
                     cardLayout.show(getContentPane(), "AdminPage");
                 } else {
                     // Navigate to user dashboard (UserPage)
+                    jLabel22.setText("Welcome, " + currentUsername);
+                    loadUserTransactions();
                     cardLayout.show(getContentPane(), "UserPage");
                 }
             } else {
@@ -2170,23 +2276,62 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_jPasswordField4ActionPerformed
 
     private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
-        // TODO add your handling code here:
+        // View Report - show financial summary
+        TransactionController controller = TransactionController.getInstance();
+        double income = controller.getTotalIncome(currentUserEmail);
+        double expense = controller.getTotalExpense(currentUserEmail);
+        double balance = income - expense;
+        
+        String report = "Financial Report\n\n" +
+                       "Total Income: " + String.format("%.2f", income) + "\n" +
+                       "Total Expense: " + String.format("%.2f", expense) + "\n" +
+                       "Net Balance: " + String.format("%.2f", balance);
+        
+        JOptionPane.showMessageDialog(this, report, "Financial Report", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_jButton13ActionPerformed
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
-        // TODO add your handling code here:
+        // Edit transaction
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a transaction to edit!", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        JOptionPane.showMessageDialog(this, "Edit functionality - Select transaction and modify details", "Edit", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_jButton14ActionPerformed
 
     private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
-        // TODO add your handling code here:
+        // Delete transaction
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a transaction to delete!", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        String date = jTable1.getValueAt(selectedRow, 0).toString();
+        double amount = Double.parseDouble(jTable1.getValueAt(selectedRow, 2).toString());
+        
+        int confirm = JOptionPane.showConfirmDialog(this, "Delete this transaction?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            TransactionController controller = TransactionController.getInstance();
+            if (controller.deleteTransaction(currentUserEmail, date, amount)) {
+                JOptionPane.showMessageDialog(this, "Transaction deleted!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                loadUserTransactions();
+            }
+        }
     }//GEN-LAST:event_jButton15ActionPerformed
 
     private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
-        // TODO add your handling code here:
+        // Manage Users - navigate to ManageUsers panel
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        loadUsersToManageTable();
+        cardLayout.show(getContentPane(), "card8");
     }//GEN-LAST:event_jButton17ActionPerformed
 
     private void jButton19ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton19ActionPerformed
-        // TODO add your handling code here:
+        // System Setting - navigate to SystemSetting panel
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "card11");
     }//GEN-LAST:event_jButton19ActionPerformed
 
     private void jButton20ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton20ActionPerformed
@@ -2222,7 +2367,26 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField8ActionPerformed
 
     private void jButton25ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton25ActionPerformed
-        // TODO add your handling code here:
+        // Search user
+        String searchText = jTextField8.getText().trim();
+        if (searchText.isEmpty()) {
+            loadUsersToManageTable();
+            return;
+        }
+        
+        UserController controller = UserController.getInstance();
+        List users = controller.getAllUsers();
+        DefaultTableModel model = (DefaultTableModel) jTable4.getModel();
+        model.setRowCount(0);
+        
+        int count = 0;
+        for (int i = 0; i < users.size(); i++) {
+            User user = (User) users.get(i);
+            if (user.getUsername().toLowerCase().contains(searchText.toLowerCase()) || 
+                user.getEmail().toLowerCase().contains(searchText.toLowerCase())) {
+                model.addRow(new Object[]{++count, user.getUsername(), user.getEmail(), "User", "Active"});
+            }
+        }
     }//GEN-LAST:event_jButton25ActionPerformed
 
     private void jTextField9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField9ActionPerformed
@@ -2332,7 +2496,10 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton18ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton18ActionPerformed
-        // TODO add your handling code here:
+        // View All Transactions
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        loadAllTransactions();
+        cardLayout.show(getContentPane(), "card13");
     }//GEN-LAST:event_jButton18ActionPerformed
 
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
@@ -2391,6 +2558,144 @@ public class Login extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jButton22ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // Add Income - navigate to AddTransaction panel
+        jRadioButton2.setSelected(true);
+        jRadioButton3.setSelected(false);
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "card7");
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
+        // Add Expense - navigate to AddTransaction panel
+        jRadioButton2.setSelected(false);
+        jRadioButton3.setSelected(true);
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "card7");
+    }//GEN-LAST:event_jButton12ActionPerformed
+
+    private void jButton23ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton23ActionPerformed
+        // Save transaction
+        String type = jRadioButton2.isSelected() ? "Income" : "Expense";
+        String amountStr = jTextField3.getText().trim();
+        String category = jComboBox1.getSelectedItem().toString();
+        String date = jTextField4.getText().trim();
+        String description = jTextArea1.getText().trim();
+        
+        if (amountStr.isEmpty() || date.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all required fields!", "Validation Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        try {
+            double amount = Double.parseDouble(amountStr);
+            TransactionController controller = TransactionController.getInstance();
+            if (controller.addTransaction(type, amount, category, date, description, currentUserEmail)) {
+                JOptionPane.showMessageDialog(this, "Transaction added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                jTextField3.setText("");
+                jTextField4.setText("");
+                jTextArea1.setText("");
+                java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+                loadUserTransactions();
+                cardLayout.show(getContentPane(), "UserPage");
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid amount!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton23ActionPerformed
+
+    private void jButton24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton24ActionPerformed
+        // Cancel - go back to UserPage
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "UserPage");
+    }//GEN-LAST:event_jButton24ActionPerformed
+
+    private void jButton29ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton29ActionPerformed
+        // Back to AdminPage from ManageUsers
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "AdminPage");
+    }//GEN-LAST:event_jButton29ActionPerformed
+
+    private void jButton36ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton36ActionPerformed
+        // Back to AdminPage from AllTransactions
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "AdminPage");
+    }//GEN-LAST:event_jButton36ActionPerformed
+
+    private void jButton26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton26ActionPerformed
+        // Add User
+        String username = JOptionPane.showInputDialog(this, "Enter username:", "Add User", JOptionPane.PLAIN_MESSAGE);
+        if (username == null || username.trim().isEmpty()) return;
+        
+        String email = JOptionPane.showInputDialog(this, "Enter email:", "Add User", JOptionPane.PLAIN_MESSAGE);
+        if (email == null || email.trim().isEmpty()) return;
+        
+        String password = JOptionPane.showInputDialog(this, "Enter password:", "Add User", JOptionPane.PLAIN_MESSAGE);
+        if (password == null || password.trim().isEmpty()) return;
+        
+        UserController controller = UserController.getInstance();
+        if (controller.registerUser(username.trim(), email.trim(), password.trim())) {
+            JOptionPane.showMessageDialog(this, "User added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadUsersToManageTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Email already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton26ActionPerformed
+
+    private void jButton27ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton27ActionPerformed
+        // Edit User
+        int selectedRow = jTable4.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a user to edit!", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        String oldEmail = jTable4.getValueAt(selectedRow, 2).toString();
+        String newUsername = JOptionPane.showInputDialog(this, "Enter new username:", jTable4.getValueAt(selectedRow, 1));
+        if (newUsername == null || newUsername.trim().isEmpty()) return;
+        
+        String newEmail = JOptionPane.showInputDialog(this, "Enter new email:", oldEmail);
+        if (newEmail == null || newEmail.trim().isEmpty()) return;
+        
+        String newPassword = JOptionPane.showInputDialog(this, "Enter new password:", "Edit User", JOptionPane.PLAIN_MESSAGE);
+        if (newPassword == null || newPassword.trim().isEmpty()) return;
+        
+        UserController controller = UserController.getInstance();
+        if (controller.updateUser(oldEmail, newUsername.trim(), newEmail.trim(), newPassword.trim())) {
+            JOptionPane.showMessageDialog(this, "User updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadUsersToManageTable();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to update user!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton27ActionPerformed
+
+    private void jButton28ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton28ActionPerformed
+        // Delete User from ManageUsers
+        int selectedRow = jTable4.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a user to delete!", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        String email = jTable4.getValueAt(selectedRow, 2).toString();
+        String username = jTable4.getValueAt(selectedRow, 1).toString();
+        
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to delete user '" + username + "'?", 
+            "Confirm Delete", 
+            JOptionPane.YES_NO_OPTION);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            UserController controller = UserController.getInstance();
+            if (controller.deleteUser(email)) {
+                JOptionPane.showMessageDialog(this, "User deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                loadUsersToManageTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to delete user!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_jButton28ActionPerformed
 
     // Validation methods
     private boolean validateSignup() {
