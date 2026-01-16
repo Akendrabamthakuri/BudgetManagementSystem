@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Transaction - Budget Management</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-box">
+            <h1>ADD TRANSACTION</h1>
+            <form>
+                <div class="input-group">
+                    <label>Type:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="type" value="income"> Income</label>
+                        <label><input type="radio" name="type" value="expense"> Expense</label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Amount:</label>
+                    <input type="number" placeholder="Enter amount">
+                </div>
+                <div class="input-group">
+                    <label>Category:</label>
+                    <select>
+                        <option>Select category</option>
+                        <option>Food</option>
+                        <option>Transport</option>
+                        <option>Utilities</option>
+                        <option>Salary</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Date:</label>
+                    <input type="date">
+                </div>
+                <div class="input-group">
+                    <label>Description:</label>
+                    <textarea rows="3" placeholder="Enter description"></textarea>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">SAVE</button>
+                    <a href="user-dashboard.html" class="btn-secondary">CANCEL</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
