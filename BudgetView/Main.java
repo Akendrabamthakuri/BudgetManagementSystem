@@ -1,5 +1,7 @@
 package BudgetView;
 
+import javax.swing.UIManager;
+
 /**
  * Main class to start the Budget Management System
  * @author yakendrabamthakuri
@@ -8,14 +10,14 @@ public class Main {
     
     public static void main(String[] args) {
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
         } catch (Exception ex) {
-            java.util.logging.Logger.getLogger(Main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
         
         java.awt.EventQueue.invokeLater(new Runnable() {
