@@ -36,8 +36,12 @@ public class UserController {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split(",");
-                    if (parts.length == 3) {
-                        users.add(new User(parts[0], parts[1], parts[2]));
+                    if (parts.length >= 3) {
+                        User user = new User(parts[0], parts[1], parts[2]);
+                        if (parts.length == 4) {
+                            user.setBudgetLimit(Double.parseDouble(parts[3]));
+                        }
+                        users.add(user);
                     }
                 }
                 reader.close();
@@ -52,7 +56,7 @@ public class UserController {
             BufferedWriter writer = new BufferedWriter(new FileWriter(USER_FILE));
             for (int i = 0; i < users.size(); i++) {
                 User user = (User) users.get(i);
-                writer.write(user.getUsername() + "," + user.getEmail() + "," + user.getPassword());
+                writer.write(user.getUsername() + "," + user.getEmail() + "," + user.getPassword() + "," + user.getBudgetLimit());
                 writer.newLine();
             }
             writer.close();
@@ -158,5 +162,15 @@ public class UserController {
     
     public int getUserCount() {
         return users.size();
+    }
+    
+    public void updateUserBudgetLimit(String email, double budgetLimit) {
+        for (int i = 0; i < users.size(); i++) {
+            User user = (User) users.get(i);
+            if (user.getEmail().equals(email)) {
+                user.setBudgetLimit(budgetLimit);
+            }
+        }
+        saveUsers();
     }
 }

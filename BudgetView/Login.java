@@ -23,6 +23,9 @@ public class Login extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Login.class.getName());
     private String currentUserEmail = "";
     private String currentUsername = "";
+    private boolean isEditMode = false;
+    private String editTransactionDate = "";
+    private double editTransactionAmount = 0.0;
 
     /**
      * Creates new form Login
@@ -64,13 +67,24 @@ public class Login extends javax.swing.JFrame {
     
     private void updateUserBudgetSummary() {
         TransactionController controller = TransactionController.getInstance();
-        double income = controller.getTotalIncome(currentUserEmail);
         double expense = controller.getTotalExpense(currentUserEmail);
-        double remaining = income - expense;
         
-        jLabel26.setText(String.format("%.2f", income));
+        UserController userController = UserController.getInstance();
+        User user = userController.getUserByEmail(currentUserEmail);
+        double budgetLimit = user != null ? user.getBudgetLimit() : 50000.0;
+        
+        double remaining = budgetLimit - expense;
+        
+        jLabel26.setText(String.format("%.2f", budgetLimit));
         jLabel27.setText(String.format("%.2f", expense));
-        jLabel28.setText(String.format("%.2f", remaining));
+        jLabel28.setText(String.format("%.2f", Math.abs(remaining)));
+        
+        // Change color if over budget
+        if (remaining < 0) {
+            jLabel28.setForeground(new java.awt.Color(255, 0, 0)); // Red for negative
+        } else {
+            jLabel28.setForeground(new java.awt.Color(0, 102, 255)); // Blue for positive
+        }
     }
     
     private void loadAllTransactions() {
@@ -1828,6 +1842,11 @@ public class Login extends javax.swing.JFrame {
         jButton34.setBackground(new java.awt.Color(0, 102, 204));
         jButton34.setForeground(new java.awt.Color(255, 255, 255));
         jButton34.setText("CANCEL");
+        jButton34.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton34ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout SystemSettingLayout = new javax.swing.GroupLayout(SystemSetting);
         SystemSetting.setLayout(SystemSettingLayout);
@@ -2291,13 +2310,36 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton13ActionPerformed
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
-        // Edit transaction
+        // Edit transaction - navigate to edit form
         int selectedRow = jTable1.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a transaction to edit!", "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        JOptionPane.showMessageDialog(this, "Edit functionality - Select transaction and modify details", "Edit", JOptionPane.INFORMATION_MESSAGE);
+        
+        editTransactionDate = jTable1.getValueAt(selectedRow, 0).toString();
+        String category = jTable1.getValueAt(selectedRow, 1).toString();
+        editTransactionAmount = Double.parseDouble(jTable1.getValueAt(selectedRow, 2).toString());
+        String type = jTable1.getValueAt(selectedRow, 3).toString();
+        
+        // Set edit mode
+        isEditMode = true;
+        
+        // Pre-fill the form
+        jTextField3.setText(String.valueOf(editTransactionAmount));
+        jTextField4.setText(editTransactionDate);
+        jComboBox1.setSelectedItem(category);
+        if (type.equals("Income")) {
+            jRadioButton2.setSelected(true);
+            jRadioButton3.setSelected(false);
+        } else {
+            jRadioButton2.setSelected(false);
+            jRadioButton3.setSelected(true);
+        }
+        
+        // Navigate to AddTransaction panel
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "card7");
     }//GEN-LAST:event_jButton14ActionPerformed
 
     private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
@@ -2422,8 +2464,35 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField22ActionPerformed
 
     private void jButton33ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton33ActionPerformed
-        // TODO add your handling code here:
+        // Save system settings - update default budget limit
+        String budgetLimitStr = jTextField19.getText().trim();
+        if (!budgetLimitStr.isEmpty()) {
+            try {
+                double budgetLimit = Double.parseDouble(budgetLimitStr);
+                // Update all users' budget limit
+                UserController controller = UserController.getInstance();
+                List users = controller.getAllUsers();
+                for (int i = 0; i < users.size(); i++) {
+                    User user = (User) users.get(i);
+                    controller.updateUserBudgetLimit(user.getEmail(), budgetLimit);
+                }
+                JOptionPane.showMessageDialog(this, "System settings saved successfully!\nDefault budget limit set to: " + budgetLimit + " for all users", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid budget limit value!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "System settings saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "AdminPage");
     }//GEN-LAST:event_jButton33ActionPerformed
+
+    private void jButton34ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton34ActionPerformed
+        // Cancel - go back to AdminPage
+        java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+        cardLayout.show(getContentPane(), "AdminPage");
+    }//GEN-LAST:event_jButton34ActionPerformed
 
     private void jComboBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox5ActionPerformed
         // TODO add your handling code here:
@@ -2561,16 +2630,24 @@ public class Login extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // Add Income - navigate to AddTransaction panel
+        isEditMode = false;
         jRadioButton2.setSelected(true);
         jRadioButton3.setSelected(false);
+        jTextField3.setText("");
+        jTextField4.setText("");
+        jTextArea1.setText("");
         java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
         cardLayout.show(getContentPane(), "card7");
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         // Add Expense - navigate to AddTransaction panel
+        isEditMode = false;
         jRadioButton2.setSelected(false);
         jRadioButton3.setSelected(true);
+        jTextField3.setText("");
+        jTextField4.setText("");
+        jTextArea1.setText("");
         java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
         cardLayout.show(getContentPane(), "card7");
     }//GEN-LAST:event_jButton12ActionPerformed
@@ -2591,15 +2668,29 @@ public class Login extends javax.swing.JFrame {
         try {
             double amount = Double.parseDouble(amountStr);
             TransactionController controller = TransactionController.getInstance();
-            if (controller.addTransaction(type, amount, category, date, description, currentUserEmail)) {
-                JOptionPane.showMessageDialog(this, "Transaction added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                jTextField3.setText("");
-                jTextField4.setText("");
-                jTextArea1.setText("");
-                java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
-                loadUserTransactions();
-                cardLayout.show(getContentPane(), "UserPage");
+            
+            if (isEditMode) {
+                // Update existing transaction
+                if (controller.updateTransaction(currentUserEmail, editTransactionDate, editTransactionAmount, type, amount, category, date, description)) {
+                    JOptionPane.showMessageDialog(this, "Transaction updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    isEditMode = false;
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update transaction!", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } else {
+                // Add new transaction
+                if (controller.addTransaction(type, amount, category, date, description, currentUserEmail)) {
+                    JOptionPane.showMessageDialog(this, "Transaction added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                }
             }
+            
+            jTextField3.setText("");
+            jTextField4.setText("");
+            jTextArea1.setText("");
+            java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
+            loadUserTransactions();
+            cardLayout.show(getContentPane(), "UserPage");
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Invalid amount!", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -2607,6 +2698,10 @@ public class Login extends javax.swing.JFrame {
 
     private void jButton24ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton24ActionPerformed
         // Cancel - go back to UserPage
+        isEditMode = false;
+        jTextField3.setText("");
+        jTextField4.setText("");
+        jTextArea1.setText("");
         java.awt.CardLayout cardLayout = (java.awt.CardLayout) getContentPane().getLayout();
         cardLayout.show(getContentPane(), "UserPage");
     }//GEN-LAST:event_jButton24ActionPerformed

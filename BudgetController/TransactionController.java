@@ -110,4 +110,20 @@ public class TransactionController {
         }
         return false;
     }
+    
+    public boolean updateTransaction(String userEmail, String oldDate, double oldAmount, String newType, double newAmount, String newCategory, String newDate, String newDescription) {
+        for (int i = 0; i < transactions.size(); i++) {
+            Transaction t = (Transaction) transactions.get(i);
+            if (t.getUserEmail().equals(userEmail) && t.getDate().equals(oldDate) && t.getAmount() == oldAmount) {
+                t.setType(newType);
+                t.setAmount(newAmount);
+                t.setCategory(newCategory);
+                t.setDate(newDate);
+                t.setDescription(newDescription);
+                saveTransactions();
+                return true;
+            }
+        }
+        return false;
+    }
 }

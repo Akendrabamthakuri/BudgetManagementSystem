@@ -1,2 +1,4 @@
-akendra,akendra@gmail.com,123456
-manchester,manchester2,1234567
+akendra,akendra@gmail.com,123456,50000.0
+manchester,manchester2,1234567,50000.0
+dipesh,dipesh69@gmail.com,123456,50000.0
+sudip,sudip@gmail.com,123456,50000.0

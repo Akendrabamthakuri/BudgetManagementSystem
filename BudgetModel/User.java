@@ -8,9 +8,11 @@ public class User {
     private String username;
     private String email;
     private String password;
+    private double budgetLimit;
     
     // Default constructor
     public User() {
+        this.budgetLimit = 50000.0; // Default budget limit
     }
     
     // Parameterized constructor
@@ -18,6 +20,7 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.budgetLimit = 50000.0; // Default budget limit
     }
     
     // Getters and Setters
@@ -43,6 +46,14 @@ public class User {
     
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public double getBudgetLimit() {
+        return budgetLimit;
+    }
+    
+    public void setBudgetLimit(double budgetLimit) {
+        this.budgetLimit = budgetLimit;
     }
     
     @Override
